@@ -4,8 +4,8 @@ $user = "root";
 $password = "";       
 $database = "aplikasi_penjualan";
 
-$conn = mysqli_connect($host, $user, $password, $database);
-if (!$conn) {
+$koneksi = mysqli_connect($host, $user, $password, $database);
+if (!$koneksi) {
     die("koneksi database gagal: " . mysqli_connect_error());
 
    

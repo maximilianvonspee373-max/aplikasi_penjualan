@@ -16,7 +16,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = md5($_POST['password']); // Hashing password dengan algoritma MD5
 
     // Gunakan Prepared Statement untuk mencegah SQL Injection
-    $stmt = $conn->prepare("SELECT id_user, nama, password, role FROM user WHERE username = ?");
+    $stmt = $koneksi->prepare("SELECT id_user, nama, password, role FROM user WHERE username = ?");
     $stmt->bind_param("s", $username);
     $stmt->execute();
     $result = $stmt->get_result();

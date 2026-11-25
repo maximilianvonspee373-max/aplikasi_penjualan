@@ -5,7 +5,7 @@ if (!isset($_SESSION['id_user'])) {
 }
 
 // Proteksi hak akses: hanya Admin yang boleh mengelola user.
-if (!isset($_SESSION['role']) || strtolower($_SESSION['role']) !== 'admin') {
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
     echo '<div class="alert alert-danger shadow-sm mt-4">
     <h5><i class="bi bi-shield-lock-fill me-2"></i>Akses Ditolak!</h5>
     <p class="mb-0">Hanya Admin yang dapat mengelola data pengguna.</p>
@@ -22,7 +22,7 @@ switch ($aksi) {
 
         if ($keyword !== '') {
             $param = '%' . $keyword . '%';
-            $stmt = $conn->prepare(
+            $stmt = $koneksi->prepare(
                 "SELECT id_user, nama, username, role
                 FROM user
                 WHERE nama LIKE ? OR username LIKE ?
@@ -32,15 +32,15 @@ switch ($aksi) {
             $stmt->execute();
             $result = $stmt->get_result();
         } else {
-            $result = $conn->query(
+            $result = $koneksi->query(
                 "SELECT id_user, nama, username, role
                 FROM user
                 ORDER BY id_user DESC"
             );
         }
-        ?>
+?>
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="fw-bold mb-0">Data Pengguna Sistem</h5>
+            <h5 class="fw-bold m-0">Data Pengguna Sistem</h5>
             <a href="index.php?page=user&aksi=tambah" class="btn btn-primary btn-sm rounded-pill">
                 <i class="bi bi-person-plus-fill me-1"></i> Tambah User
             </a>
@@ -49,7 +49,7 @@ switch ($aksi) {
         <form action="index.php" method="GET" class="mb-4">
             <input type="hidden" name="page" value="user">
             <div class="input-group shadow-sm">
-                <input type="text" name="cari" class="form-control" placeholder="Cari nama atau username..." value="<?= htmlspecialchars($keyword); ?>">
+                <input type="text" name="cari" class="form-control" placeholder="Cari nama atau username.." value="<?= htmlspecialchars($keyword); ?>">
                 <button class="btn btn-primary" type="submit">
                     <i class="bi bi-search"></i> Cari
                 </button>
@@ -57,52 +57,52 @@ switch ($aksi) {
         </form>
 
         <div class="row g-3">
-            <?php if ($result && $result->num_rows > 0): ?>
-                <?php while ($row = $result->fetch_assoc()): ?>
-                    <?php $badge_role = (strtolower($row['role']) === 'admin') ? 'bg-danger' : 'bg-primary'; ?>
-                    <div class="col-12 col-md-6 col-lg-4">
-                        <div class="card border-0 shadow-sm h-100">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center mb-3">
-                                    <div class="bg-light rounded-circle d-flex justify-content-center align-items-center me-3 border" style="width: 48px; height: 48px;">
-                                        <i class="bi bi-person-badge fs-4"></i>
-                                    </div>
-                                    <div>
-                                        <h6 class="fw-bold mb-1"><?= htmlspecialchars($row['nama']); ?></h6>
-                                        <span class="badge <?= $badge_role; ?>"><?= htmlspecialchars($row['role']); ?></span>
-                                    </div>
+            <?php if ($result && $result->num_rows > 0) { ?>
+                <?php while ($row = $result->fetch_assoc()) {
+                    $warna = ($row['role'] === 'Admin') ? 'bg-danger' : 'bg-primary';
+                ?>
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-light rounded-circle d-flex justify-content-center align-items-center me-3 border" style="width: 45px;height: 45px;">
+                                    <i class="bi bi-person-badge fs-5"></i>
                                 </div>
-
-                                <p class="text-muted small mb-3">
-                                    <i class="bi bi-at me-1"></i><?= htmlspecialchars($row['username']); ?>
-                                </p>
-
-                                <div class="d-flex gap-2">
-                                    <a href="index.php?page=user&aksi=edit&id=<?= $row['id_user']; ?>" class="btn btn-outline-warning btn-sm rounded-pill w-50">
-                                        <i class="bi bi-pencil"></i> Edit
-                                    </a>
-                                    <a href="index.php?page=user&aksi=hapus&id=<?= $row['id_user']; ?>" class="btn btn-outline-danger btn-sm rounded-pill w-50" onclick="return confirm('Yakin ingin menghapus pengguna ini?');">
-                                        <i class="bi bi-trash"></i> Hapus
-                                    </a>
+                                <div>
+                                    <h6 class="fw-bold mb-0"><?= htmlspecialchars($row['nama']); ?></h6>
+                                    <span class="badge <?= $warna; ?>"><?= htmlspecialchars($row['role']); ?></span>
                                 </div>
+                            </div>
+                            <p class="text-muted small mb-3">
+                                <i class="bi bi-at me-1"></i><?= htmlspecialchars($row['username']); ?>
+                            </p>
+                            <div class="d-flex gap-2">
+                                <a class="btn btn-outline-warning btn-sm rounded-pill w-50" href="index.php?page=user&aksi=edit&id=<?= (int)$row['id_user']; ?>">
+                                    <i class="bi bi-pencil"></i> Edit
+                                </a>
+                                <a class="btn btn-outline-danger btn-sm rounded-pill w-50" href="index.php?page=user&aksi=hapus&id=<?= (int)$row['id_user']; ?>" onclick="return confirm('Yakin ingin menghapus pengguna ini?');">
+                                    <i class="bi bi-trash"></i> Hapus
+                                </a>
                             </div>
                         </div>
                     </div>
-                <?php endwhile; ?>
-            <?php else: ?>
+                </div>
+                <?php } ?>
+            <?php } else { ?>
                 <div class="col-12">
                     <div class="alert alert-light border text-center">
                         Data pengguna tidak ditemukan.
                     </div>
                 </div>
-            <?php endif; ?>
+            <?php } ?>
         </div>
-
         <?php
         if (isset($stmt)) {
             $stmt->close();
         }
         break;
+
+
 
 
     case 'tambah':
@@ -113,13 +113,13 @@ switch ($aksi) {
             $password_input = $_POST['password'];
             $role = $_POST['role'];
             // Pastikan role sesuai pilihan yang diizinkan database.
-            if (!in_array($role, ['admin', 'kasir'], true)) {
+            if (!in_array($role, ['Admin', 'Kasir'], true)) {
                 $pesan = 'Role yang dipilih tidak valid.';
             } elseif ($nama === '' || $username === '' || $password_input === '') {
                 $pesan = 'Semua kolom wajib diisi.';
             } else {
                 // Periksa apakah username sudah digunakan.
-                $cek = $conn->prepare("SELECT id_user FROM user WHERE username = ?");
+                $cek = $koneksi->prepare("SELECT id_user FROM user WHERE username = ?");
                 $cek->bind_param("s", $username);
                 $cek->execute();
                 $sudah_ada = $cek->get_result()->num_rows > 0;
@@ -129,7 +129,7 @@ switch ($aksi) {
                 } else {
                     // Mengikuti skema autentikasi Modul 02.
                     $password = md5($password_input);
-                    $stmt = $conn->prepare(
+                    $stmt = $koneksi->prepare(
                         "INSERT INTO user (nama, username, password, role) VALUES (?, ?, ?, ?)"
                     );
                     $stmt->bind_param("ssss", $nama, $username, $password, $role);
@@ -171,8 +171,8 @@ switch ($aksi) {
                         <label class="form-label fw-bold">Hak Akses</label>
                         <select name="role" class="form-select" required>
                             <option value="">-- Pilih Role --</option>
-                            <option value="admin">Admin</option>
-                            <option value="kasir">Kasir</option>
+                            <option value="Admin">Admin</option>
+                            <option value="Kasir">Kasir</option>
                         </select>
                     </div>
                     <button type="submit" name="simpan" class="btn btn-primary w-100 mb-2">Simpan Pengguna</button>
@@ -193,7 +193,7 @@ switch ($aksi) {
             break;
         }
 
-        $stmt_get = $conn->prepare("SELECT id_user, nama, username, role FROM user WHERE id_user = ?");
+        $stmt_get = $koneksi->prepare("SELECT id_user, nama, username, role FROM user WHERE id_user = ?");
         $stmt_get->bind_param("i", $id);
         $stmt_get->execute();
         $data = $stmt_get->get_result()->fetch_assoc();
@@ -210,13 +210,13 @@ switch ($aksi) {
             $username = trim($_POST['username']);
             $password_input = trim($_POST['password']);
             $role = $_POST['role'];
-            if (!in_array($role, ['admin', 'kasir'], true)) {
+            if (!in_array($role, ['Admin', 'Kasir'], true)) {
                 $pesan = 'Role yang dipilih tidak valid.';
             } elseif ($nama === '' || $username === '') {
                 $pesan = 'Nama dan username wajib diisi.';
             } else {
                 // Username boleh tetap sama, tetapi tidak boleh dipakai oleh pengguna lain.
-                $cek = $conn->prepare("SELECT id_user FROM user WHERE username = ? AND id_user != ?");
+                $cek = $koneksi->prepare("SELECT id_user FROM user WHERE username = ? AND id_user <> ?");
                 $cek->bind_param("si", $username, $id);
                 $cek->execute();
                 $username_dipakai = $cek->get_result()->num_rows > 0;
@@ -226,13 +226,13 @@ switch ($aksi) {
                 } else {
                     if ($password_input !== '') {
                         $password = md5($password_input);
-                        $stmt = $conn->prepare(
+                        $stmt = $koneksi->prepare(
                             "UPDATE user SET nama = ?, username = ?, password = ?, role = ? WHERE id_user = ?"
                         );
                         $stmt->bind_param("ssssi", $nama, $username, $password, $role, $id);
                     } else {
                         // Password kosong: jangan ubah kolom password.
-                        $stmt = $conn->prepare(
+                        $stmt = $koneksi->prepare(
                             "UPDATE user SET nama = ?, username = ?, role = ? WHERE id_user = ?"
                         );
                         $stmt->bind_param("sssi", $nama, $username, $role, $id);
@@ -255,14 +255,14 @@ switch ($aksi) {
             $data['username'] = $username;
             $data['role'] = $role;
         }
-        ?>
+?>
         <h5 class="fw-bold mb-3">Edit Pengguna</h5>
         <?php if ($pesan !== '') { ?>
             <div class="alert alert-warning"><?= htmlspecialchars($pesan); ?></div>
         <?php } ?>
         <div class="card border-0 shadow-sm">
             <div class="card-body">
-                <form action="index.php?page=user&aksi=edit&id=<?= $id; ?>" method="POST">
+                <form action="index.php?page=user&aksi=edit&id=<?= (int)$id; ?>" method="POST">
                     <div class="mb-3">
                         <label class="form-label fw-bold">Nama Lengkap</label>
                         <input type="text" name="nama" class="form-control" value="<?= htmlspecialchars($data['nama']); ?>" maxlength="100" required>
@@ -279,8 +279,8 @@ switch ($aksi) {
                     <div class="mb-4">
                         <label class="form-label fw-bold">Hak Akses</label>
                         <select name="role" class="form-select" required>
-                            <option value="admin" <?= strtolower($data['role']) === 'admin' ? 'selected' : ''; ?>>Admin</option>
-                            <option value="kasir" <?= strtolower($data['role']) === 'kasir' ? 'selected' : ''; ?>>Kasir</option>
+                            <option value="Admin" <?= $data['role'] === 'Admin' ? 'selected' : ''; ?>>Admin</option>
+                            <option value="Kasir" <?= $data['role'] === 'Kasir' ? 'selected' : ''; ?>>Kasir</option>
                         </select>
                     </div>
                     <button type="submit" name="update" class="btn btn-success w-100 mb-2">Update Pengguna</button>
@@ -288,8 +288,10 @@ switch ($aksi) {
                 </form>
             </div>
         </div>
-        <?php
+<?php
         break;
+
+
 
 
     case 'hapus':
@@ -301,33 +303,33 @@ switch ($aksi) {
             </script>";
             exit;
         }
-
-        // Cegah Admin menghapus akunnya sendiri.
-        if ($id === (int)$_SESSION['id_user']) {
+        // Self-deletion guard: Admin tidak boleh menghapus akun sendiri.
+        if ($id == $_SESSION['id_user']) {
             echo "<script>
-            alert('Tidak dapat menghapus akun sendiri yang sedang digunakan.');
+            alert('Gagal! Anda tidak dapat menghapus akun yang sedang digunakan.');
             window.location='index.php?page=user';
             </script>";
             exit;
         }
-
-        $stmt = $conn->prepare("DELETE FROM user WHERE id_user = ?");
+        $stmt = $koneksi->prepare("DELETE FROM user WHERE id_user = ?");
         $stmt->bind_param("i", $id);
-        if ($stmt->execute()) {
-            $stmt->close();
-            echo "<script>
-            alert('Data pengguna berhasil dihapus!');
-            window.location='index.php?page=user';
-            </script>";
-            exit;
+
+        if ($stmt->execute() && $stmt->affected_rows > 0) {
+            $pesan_hapus = 'Pengguna berhasil dihapus.';
         } else {
-            $stmt->close();
-            echo "<script>
-            alert('Gagal menghapus data pengguna.');
-            window.location='index.php?page=user';
-            </script>";
-            exit;
+            $pesan_hapus = 'Pengguna gagal dihapus atau data tidak ditemukan.';
         }
+        $stmt->close();
+
+        echo "<script>
+        alert(" . json_encode($pesan_hapus) . ");
+        window.location='index.php?page=user';
+        </script>";
+        exit;
+    default:
+        echo '<div class="alert alert-warning">
+        Aksi tidak dikenali. Silakan kembali ke daftar pengguna.
+        </div>';
         break;
 }
 ?>
